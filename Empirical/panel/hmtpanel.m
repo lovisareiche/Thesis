@@ -102,14 +102,14 @@ function est = hmtpanel( id, time, y, X1, X2, W1, W2 )
     est.W2 = W2;
     
 % Step 1: Regress the model by OLS by using differences from the 
-% ‚Äútemporal‚Äù mean, ie using fixed effects estimator;
+% ìtemporalî mean, ie using fixed effects estimator;
     
     X= [X1, X2];
     [ est1 ] = panel( id, time, y, X, 'fe' );
     coef = est1.coef;
     
 % Step 2: (a) From Step 1, use the residual to compute the 
-% ‚Äúintra-group‚Äù  temporal mean of the residuals;
+% ìintra-groupî  temporal mean of the residuals;
 % (b) and stack them into vector eta
     
     %{
