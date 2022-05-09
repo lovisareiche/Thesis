@@ -1,6 +1,6 @@
 function est = hmtpanel( id, time, y, X1, X2, W1, W2 )
 
-%HMTPANEL Panel data estimation using the Hausman Taylor (1981) estimator
+%   HMTPANEL Panel data estimation using the Hausman Taylor (1981) estimator
 %   Computes panel data estimation for endogenous and exogenous time
 %   invariant and time varying variables.
 %
@@ -11,6 +11,8 @@ function est = hmtpanel( id, time, y, X1, X2, W1, W2 )
 %   est = PANEL(id, time, y, X, method, Name,Value) computes panel data 
 %   estimation with additional properties using one or more Name,Value pair
 %   arguments.
+
+% Compatible with Alvarez et al Panel regression toolbox
 
 % INPUT
 % id: individual specific id
@@ -100,14 +102,14 @@ function est = hmtpanel( id, time, y, X1, X2, W1, W2 )
     est.W2 = W2;
     
 % Step 1: Regress the model by OLS by using differences from the 
-% ìtemporalî mean, ie using fixed effects estimator;
+% ‚Äútemporal‚Äù mean, ie using fixed effects estimator;
     
     X= [X1, X2];
     [ est1 ] = panel( id, time, y, X, 'fe' );
     coef = est1.coef;
     
 % Step 2: (a) From Step 1, use the residual to compute the 
-% ìintra-groupî  temporal mean of the residuals;
+% ‚Äúintra-group‚Äù  temporal mean of the residuals;
 % (b) and stack them into vector eta
     
     %{
