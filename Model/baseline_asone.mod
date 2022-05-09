@@ -1,12 +1,17 @@
-/*
- * This file implements my baseline New Keynesian DSGE model with two sectors
- * It is a simplified version of model 1 with log utility, cobb douglas 
- * aggregation and the assumption that A only works in G and B only in D. 
- * There is a wage for each sector but the wages must equal to induce work 
- * in both sectors.
-*/
+%-------------------------------------------------------------------------
+% Baseline mod file for durable goods NK
+%-------------------------------------------------------------------------
 
-@#define oneshock=1
+% This file implements the baseline durable goods model with two 
+% sectors. The model features log-utility, cobb douglas aggregation and the
+% assumption that A and B optimise together (as one agent). There is a wage for 
+% each sector but the wages must equal to induce work in both sectors.
+
+@#define oneshock=1 % must manually select which model
+
+
+% 1. Specify variables and parameters
+%-------------------------------------------------------------------------
 
 var 
 @# if oneshock==1
@@ -34,10 +39,10 @@ var
     N_A     (long_name='labour supply of member A')
     N_B     (long_name='labour supply of member B')
     q       (long_name='relation durables prices to grocery prices')
-    X_G
-    X_D
-    GDP
-    PI
+    X_G     (long_name='Output gap groceries')
+    X_D     (long_name='Output gap durables')
+    GDP     (long_name='GDP aggregate')
+    PI      (long_name='Price index')
 
     G       (long_name='consumption of groceries')
     D       (long_name='consumption of durables')
@@ -49,10 +54,10 @@ var
     x2_G    (long_name='variable 2 for recursive formulation of price setting of groceries')
     x1_D    (long_name='variable 1 for recursive formulation of price setting of durables')
     x2_D    (long_name='variable 2 for recursive formulation of price setting of durables')
-    Y_G_f
-    Y_D_f
-    U_G
-    U_D
+    Y_G_f   (long_name='flexible price output of groceries')
+    Y_D_f   (long_name='flexible price output of durables')
+    U_G     (long_name='marginal utility groceries')
+    U_D     (long_name='marginal utility durables')
     ;
     
 varexo 
@@ -88,7 +93,7 @@ parameters beta         (long_name='discount factor')
            rhoC         (long_name='autocorrelation interest rate shock')
            PI_Gbar      (long_name='steady state groceries inflation')
            PI_Dbar      (long_name='steady state durables inflation')
-           Rbar
+           Rbar         (long_name='Steady state nominal interest')
            ;
 
 load param;
@@ -110,6 +115,10 @@ set_param_value('rhoA',rhoA);
 set_param_value('rhoSi',rhoSi);
 set_param_value('rhoC',rhoC);
 Rbar = (1+PI_Gbar)/(beta);
+
+
+% 2. Model equations
+%-------------------------------------------------------------------------
 
 model; 
 
@@ -218,15 +227,14 @@ log(Si)=rhoSi*log(Si(-1))+epsSi;
 q=q(-1)*(1+PI_D)/(1+PI_G);
 
 
-
 @# if oneshock==1
     [name='flexible output']
-    Y_G_f = (alpha/psi_A * (epsilon_G-1)/epsilon_G)^(1/(eta+1))*(A); 
-    Y_D_f = ((1-alpha)/psi_B * (epsilon_D-1)/epsilon_D * ((epsilon_G-1)/epsilon_G * A)/((epsilon_D-1)/epsilon_D* A))^(1/(eta+1))*A; 
+    Y_G_f = (alpha/psi_A * (epsilon_G-1)/epsilon_G * A)^(1/(eta+1)) * A; 
+    Y_D_f = ((1-alpha)/(psi_B*delta) * (epsilon_G-1)/epsilon_G * A * 1/((epsilon_G-1)/epsilon_G*epsilon_D/(epsilon_D-1)) * 1/(1-(1-delta)*(1+PI_D(+1))/R))^(1/(eta+1))*A;
 @# elseif oneshock==0
     [name='flexible output']
-    Y_G_f = (alpha/psi_A * (epsilon_G-1)/epsilon_G)^(1/(eta+1))*(A_G); 
-    Y_D_f = ((1-alpha)/psi_B * (epsilon_D-1)/epsilon_D * ((epsilon_G-1)/epsilon_G * A_G)/((epsilon_D-1)/epsilon_D* A_D))^(1/(eta+1))*A_D; 
+    Y_G_f = (alpha/psi_A * (epsilon_G-1)/epsilon_G * A_G)^(1/(eta+1))*(A_G); 
+    Y_D_f = ((1-alpha)/(psi_B*delta) * (epsilon_G-1)/epsilon_G * A_G * 1/((epsilon_G-1)/epsilon_G*A_G/A_D*epsilon_D/(epsilon_D-1)) * 1/(1-(1-delta)*(1+PI_D(+1))/R))^(1/(eta+1))*A_D;
 @# endif
 
 [name='output gap']
@@ -234,6 +242,10 @@ X_G = Y_G/Y_G_f;
 X_D = Y_D/Y_D_f;
 
 end;
+
+
+% 3. Shocks
+%-------------------------------------------------------------------------
 
 shocks;
 @# if oneshock==1
@@ -252,6 +264,10 @@ var epsSi; stderr 0.01;
 
 
 end;
+
+
+% 4. Steady state caculation
+%-------------------------------------------------------------------------
 
 steady_state_model;
 
@@ -290,7 +306,8 @@ Y_D=Y_G/(q*alpha) * delta*(1-alpha)/(1-beta*(1-delta));
 N_B=Y_D*vp_D;
 
 Y_G_f = (alpha/psi_A * (epsilon_G-1)/epsilon_G)^(1/(eta+1)); 
-Y_D_f = ((1-alpha)/psi_B * (epsilon_D-1)/epsilon_D * ((epsilon_G-1)/epsilon_G)/((epsilon_D-1)/epsilon_D))^(1/(eta+1)); 
+//Y_D_f = ((1-alpha)/psi_B * (epsilon_D-1)/epsilon_D * ((epsilon_G-1)/epsilon_G)/((epsilon_D-1)/epsilon_D))^(1/(eta+1)); 
+Y_D_f = ((1-alpha)/(psi_B*delta) * ((epsilon_G-1)/epsilon_G) * 1/((epsilon_G-1)/epsilon_G*epsilon_D/(epsilon_D-1)) * 1/(1-beta*(1-delta)))^(1/(eta+1)); 
 X_G = Y_G/Y_G_f;
 X_D = Y_D/Y_D_f;
 
@@ -310,6 +327,10 @@ PI=(1+PI_G)^alpha*(1+PI_D)^(1-alpha)-1;
 
 
 end;
+
+
+
+
 
 steady;
 
