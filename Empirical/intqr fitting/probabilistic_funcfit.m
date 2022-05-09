@@ -1,7 +1,7 @@
 function [mn,md,intqr] = probabilistic_funcfit(Xt)
 
 % Fit distributions to the probabilistic answers as in Engelberg et al 2009
-% If a respondent uses 1-2 bins we assume instead that the subjective 
+% If a respondent uses 1-2 bins we assume that the subjective 
 % distribution has the shape of an isosceles triangle
 % If instead a respondent uses 3 or more bins we assume that the
 % subjective distribution is a member of the generalized Beta family
