@@ -1,6 +1,6 @@
 function est = hmtpanel( id, time, y, X1, X2, W1, W2 )
 
-%   HMTPANEL Panel data estimation using the Hausman Taylor (1981) estimator
+% HMTPANEL Panel data estimation using the Hausman Taylor (1981) estimator
 %   Computes panel data estimation for endogenous and exogenous time
 %   invariant and time varying variables.
 %
@@ -12,7 +12,7 @@ function est = hmtpanel( id, time, y, X1, X2, W1, W2 )
 %   estimation with additional properties using one or more Name,Value pair
 %   arguments.
 
-% Compatible with Alvarez et al Panel regression toolbox
+% Compatible with Toolbox by Alvarez et al
 
 % INPUT
 % id: individual specific id
